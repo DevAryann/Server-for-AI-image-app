@@ -26,8 +26,16 @@ def home():
 
 @app.route('/generate', methods=['POST'])
 def generate_image():
-    # ... (code for client check and prompt extraction remains the same) ...
-
+    # Check if the client is available before processing
+    if not client:
+        return jsonify({"status": "error", "message": "AI Client not initialized."}), 500
+        
+    # 1. Get the text prompt from the Android App
+    data = request.json
+    prompt = data.get('prompt', 'A detailed, photorealistic cyborg cat painting a picture')
+    
+    print(f"Received prompt: {prompt}")
+    
     try:
         # 1. New Model Call: Use generate_content instead of generate_images 
         #    and the model name 'gemini-2.5-flash-image'.
@@ -58,6 +66,7 @@ def generate_image():
         # Handle specific API errors (e.g., prompt filtered, quota exceeded)
         print(f"Gemini API Error: {e.message}")
         return jsonify({"status": "error", "message": f"Gemini API Error: {e.message}"}), 500
+    
     except Exception as e:
         print(f"Internal Server Error: {str(e)}")
         return jsonify({"status": "error", "message": f"Internal Server Error: {str(e)}"}), 500
